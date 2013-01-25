@@ -5,12 +5,12 @@ import java.net.URL;
 import java.net.URLEncoder;
 
 import org.aerogear.agreddit.R;
-import org.aerogear.android.Callback;
-import org.aerogear.android.authentication.AbstractAuthenticationModule;
-import org.aerogear.android.authentication.AuthorizationFields;
-import org.aerogear.android.core.HeaderAndBody;
-import org.aerogear.android.core.HttpProvider;
-import org.aerogear.android.impl.core.HttpRestProvider;
+import org.jboss.aerogear.android.Callback;
+import org.jboss.aerogear.android.authentication.AbstractAuthenticationModule;
+import org.jboss.aerogear.android.authentication.AuthorizationFields;
+import org.jboss.aerogear.android.http.HeaderAndBody;
+import org.jboss.aerogear.android.http.HttpProvider;
+import org.jboss.aerogear.android.impl.http.HttpRestProvider;
 
 import android.content.Context;
 import android.os.AsyncTask;

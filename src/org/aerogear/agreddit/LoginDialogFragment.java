@@ -1,7 +1,7 @@
 package org.aerogear.agreddit;
 
-import org.aerogear.android.Callback;
-import org.aerogear.android.core.HeaderAndBody;
+import org.jboss.aerogear.android.Callback;
+import org.jboss.aerogear.android.http.HeaderAndBody;
 
 import android.app.Activity;
 import android.os.Bundle;

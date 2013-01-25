@@ -6,11 +6,12 @@ import java.net.URL;
 import org.aerogear.agreddit.authentication.RedditAuthenticationModule;
 import org.aerogear.agreddit.gson.ListingTypeAdapter;
 import org.aerogear.agreddit.reddit.Listing;
-import org.aerogear.android.Callback;
-import org.aerogear.android.Pipeline;
-import org.aerogear.android.core.HeaderAndBody;
-import org.aerogear.android.impl.pipeline.PipeConfig;
-import org.aerogear.android.pipeline.Pipe;
+import org.jboss.aerogear.android.Callback;
+import org.jboss.aerogear.android.Pipeline;
+import org.jboss.aerogear.android.http.HeaderAndBody;
+import org.jboss.aerogear.android.impl.pipeline.PipeConfig;
+import org.jboss.aerogear.android.pipeline.Pipe;
+import org.jboss.aerogear.android.pipeline.paging.PageConfig;
 
 import android.app.Application;
 
@@ -38,6 +39,15 @@ public class StoryListApplication extends Application {
 		config.setGsonBuilder(new GsonBuilder().registerTypeAdapter(Listing.class, new ListingTypeAdapter()));
 		config.setEndpoint(".json");
 		config.setAuthModule(module);
+		
+		PageConfig pageConfig = new PageConfig();
+		pageConfig.setLimitValue(25);
+		pageConfig.setMetadataLocation(PageConfig.MetadataLocations.BODY);
+		pageConfig.setNextIdentifier("data.after");
+		pageConfig.setPreviousIdentifier("data.before");
+		pageConfig.setPageHeaderParser(new PageConsumer());
+		
+		config.setPageConfig(pageConfig);
 		
 		pipeline.pipe(Listing.class, config);
 		
