@@ -6,7 +6,7 @@ import org.aerogear.agreddit.reddit.Listing;
 import org.aerogear.agreddit.reddit.T3;
 import org.jboss.aerogear.android.Callback;
 import org.jboss.aerogear.android.http.HttpException;
-import org.jboss.aerogear.android.impl.pipeline.WrappingPagedList;
+import org.jboss.aerogear.android.impl.pipeline.paging.WrappingPagedList;
 import org.jboss.aerogear.android.pipeline.Pipe;
 
 import android.app.Activity;
