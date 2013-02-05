@@ -65,6 +65,14 @@ public class ListingTypeAdapter implements InstanceCreator<Listing>,
 			child.setUrl(element.get("url").getAsString());
 		if (element.get("score") != null)
 			child.setScore(element.get("score").getAsLong());
+		if (element.get("author") != null) {
+			child.setAuthor(element.get("author").getAsString());
+		}
+		
+		if (element.get("subreddit") != null) {
+			child.setSubreddit(element.get("subreddit").getAsString());
+		}
+		
 		return child;
 	}
 
