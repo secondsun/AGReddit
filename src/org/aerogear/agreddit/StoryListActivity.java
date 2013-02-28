@@ -1,13 +1,14 @@
 package org.aerogear.agreddit;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-public class StoryListActivity extends FragmentActivity
+public class StoryListActivity extends Activity
         implements StoryListFragment.Callbacks {
 
     private boolean mTwoPane;
@@ -21,9 +22,12 @@ public class StoryListActivity extends FragmentActivity
         
         if (findViewById(R.id.story_detail_container) != null) {
             mTwoPane = true;
-            ((StoryListFragment) getSupportFragmentManager()
+            ((StoryListFragment) getFragmentManager()
                     .findFragmentById(R.id.story_list))
                     .setActivateOnItemClick(true);
+            ((StoryListFragment) getFragmentManager()
+                    .findFragmentById(R.id.story_list))
+                    .setRetainInstance(true);
         }
     }
 
@@ -43,7 +47,7 @@ public class StoryListActivity extends FragmentActivity
     	switch (item.getItemId()) {
 		case R.id.menu_login:
 			LoginDialogFragment dialog = new LoginDialogFragment();
-			dialog.show(getSupportFragmentManager(), "Dialog");
+			dialog.show(getFragmentManager(), "Dialog");
 			break;
 
 		default:

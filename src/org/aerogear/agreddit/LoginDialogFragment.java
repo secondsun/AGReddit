@@ -5,7 +5,8 @@ import org.jboss.aerogear.android.http.HeaderAndBody;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
+import android.os.Handler;
+import android.app.DialogFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +22,7 @@ public class LoginDialogFragment extends DialogFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		root = inflater.inflate(R.layout.login, container);
+		final Handler closeHandler = new Handler();
 		root.findViewById(R.id.button1).setOnClickListener(
 				new View.OnClickListener() {
 
@@ -38,18 +40,24 @@ public class LoginDialogFragment extends DialogFragment {
 											public void onSuccess(
 													HeaderAndBody data) {
 												((StoryListFragment) getActivity()
-														.getSupportFragmentManager()
+														.getFragmentManager()
 														.findFragmentById(
 																R.id.story_list))
-														.reload();
-												LoginDialogFragment.this.dismiss();
+														.reload(true);
+												closeHandler.post(new Runnable() {
+													
+													@Override
+													public void run() {
+														LoginDialogFragment.this.dismiss();
+													}
+												});
 											}
 
 											public void onFailure(Exception e) {
 												Log.e("LoginDialog", e.getMessage(), e);
 												Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
 											}
-										});
+										}, LoginDialogFragment.this);
 					}
 				});
 		return root;

@@ -8,19 +8,22 @@ import org.aerogear.agreddit.gson.ListingTypeAdapter;
 import org.aerogear.agreddit.reddit.Listing;
 import org.jboss.aerogear.android.Callback;
 import org.jboss.aerogear.android.Pipeline;
+import org.jboss.aerogear.android.authentication.impl.Authenticator;
 import org.jboss.aerogear.android.http.HeaderAndBody;
 import org.jboss.aerogear.android.impl.pipeline.PipeConfig;
+import org.jboss.aerogear.android.pipeline.LoaderPipe;
 import org.jboss.aerogear.android.pipeline.Pipe;
 import org.jboss.aerogear.android.pipeline.paging.PageConfig;
 
 import android.app.Application;
+import android.app.Fragment;
 
 import com.google.gson.GsonBuilder;
 
 public class StoryListApplication extends Application {
 
 	Pipeline pipeline;
-
+	Authenticator authenticator;
 	RedditAuthenticationModule module;
 
 	@Override
@@ -33,7 +36,11 @@ public class StoryListApplication extends Application {
 			throw new RuntimeException(e);
 		}
 		pipeline = new Pipeline(redditURL);
+		authenticator = new Authenticator(redditURL);
+		
 		module = new RedditAuthenticationModule(getApplicationContext());
+		authenticator.add("reddit", module);
+
 		
 		PipeConfig config = new PipeConfig(redditURL, Listing.class);
 		config.setGsonBuilder(new GsonBuilder().registerTypeAdapter(Listing.class, new ListingTypeAdapter()));
@@ -57,12 +64,12 @@ public class StoryListApplication extends Application {
 		return false;
 	}
 
-	public Pipe<Listing> getListing() {
-		return pipeline.get(Listing.class.getSimpleName().toLowerCase());
+	public LoaderPipe<Listing> getListing(Fragment fragment) {
+		return pipeline.get("listing", fragment, this.getApplicationContext());
 	}
 
-	public void login(String username, String password, Callback<HeaderAndBody> callback) {
-		module.login(username, password, callback);
+	public void login(String username, String password, Callback<HeaderAndBody> callback, Fragment fragment) {
+		authenticator.get("reddit", fragment, this.getApplicationContext()).login(username, password, callback);
 	}
 	
 }

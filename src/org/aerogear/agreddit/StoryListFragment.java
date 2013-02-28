@@ -5,23 +5,17 @@ import java.util.List;
 import org.aerogear.agreddit.reddit.Listing;
 import org.aerogear.agreddit.reddit.T3;
 import org.jboss.aerogear.android.Callback;
-import org.jboss.aerogear.android.http.HttpException;
 import org.jboss.aerogear.android.impl.pipeline.paging.WrappingPagedList;
-import org.jboss.aerogear.android.pipeline.Pipe;
+import org.jboss.aerogear.android.pipeline.LoaderPipe;
 
 import android.app.Activity;
-import android.content.Context;
+import android.app.ListFragment;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 
 public class StoryListFragment extends ListFragment {
 
@@ -29,51 +23,11 @@ public class StoryListFragment extends ListFragment {
 
 	private Callbacks mCallbacks = sDummyCallbacks;
 	private int mActivatedPosition = ListView.INVALID_POSITION;
-	private WrappingPagedList<Listing> listings;
-	private Context appContext;
+	WrappingPagedList<Listing> listings;
 	
-	private final Callback<List<Listing>> readCallback = new Callback<List<Listing>>() {
-
-		public void onSuccess(final List<Listing> data) {
-			Log.d("Reddt", "success");
-			Log.d("Reddit", data.toString());
-			listings = (WrappingPagedList<Listing>) data;
-			setListAdapter(new ArrayAdapter<T3>(appContext,
-	                android.R.layout.simple_list_item_activated_1,
-	                android.R.id.text1,
-	                data.get(0).getData().getChildren()) {
-				
-				@Override
-				public View getView(int position, View convertView, android.view.ViewGroup parent) {
-					T3 story = data.get(0).getData().getChildren().get(position);
-					if (convertView == null) {
-						convertView = ((LayoutInflater)appContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.reddit_story_list_item, null);
-					}
-					
-					String author = story.getAuthor();
-					String title = story.getTitle();
-					Long ups = story.getScore();
-					String subreddit = story.getSubreddit();
-					
-					((TextView)convertView.findViewById(R.id.title)).setText(title);
-					((TextView)convertView.findViewById(R.id.author)).setText(author);
-					((TextView)convertView.findViewById(R.id.upvotes)).setText(ups + "");
-					((TextView)convertView.findViewById(R.id.subreddit)).setText(subreddit);
-					
-					return convertView;
-				};
-			});
-		}
-
-		public void onFailure(Exception e) {
-			Log.d("Reddt", "failure", e);
-			if (e instanceof HttpException) {
-				HttpException httpException = (HttpException) e;
-				Log.d("Reddit", new String(httpException.getData()));
-			}
-		}
-		
-	};
+	private final Callback<List<Listing>> readCallback;
+	
+	
 	
 	public interface Callbacks {
 
@@ -86,26 +40,28 @@ public class StoryListFragment extends ListFragment {
 	};
 
 	public StoryListFragment() {
+		readCallback = new StoryListCallback<List<Listing>>(this);
 	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		setHasOptionsMenu(true);
 		super.onCreate(savedInstanceState);
-		
+		reload(false);
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		appContext = getActivity().getApplicationContext();
-		reload();
 		
 	}
 
-	public void reload() {
+	public void reload(boolean reset) {
 		StoryListApplication applicaiton = (StoryListApplication) getActivity().getApplication();
-		Pipe<Listing> listing = applicaiton.getListing();
+		LoaderPipe<Listing> listing = applicaiton.getListing(this);
+		if (reset) {
+			listing.reset();
+		}
 		listing.read(readCallback);
 	}
 

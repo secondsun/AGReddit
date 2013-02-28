@@ -57,13 +57,12 @@ public class RedditAuthenticationModule extends AbstractAuthenticationModule {
 
 	public void login(final String username, final String password,
 		    final Callback<HeaderAndBody> callback) {
-        new AsyncTask<Void, Void, Void>() {
-            private Exception exception;
+        THREAD_POOL_EXECUTOR.execute(new Runnable() {
+        	private Exception exception;
             private HeaderAndBody result;
 
-            @Override
-            protected Void doInBackground(Void... params) {
-                
+			@Override
+			public void run() {
                 try {
                 	HttpProvider provider = new HttpRestProvider(getLoginURL(username));
                 	provider.setDefaultHeader("User-Agent", "AeroGear StoryList Demo /u/secondsun");
@@ -81,27 +80,25 @@ public class RedditAuthenticationModule extends AbstractAuthenticationModule {
                     	  "Error with Login", e);
                     exception = e;
                 }
-                return null;
-            }
+			
 
-            private String buildLoginData(String username, String password) {
+    			if (exception == null) {
+                    callback.onSuccess(this.result);
+                } else {
+                    callback.onFailure(exception);
+                }
+                
+			}
+			
+			private String buildLoginData(String username, String password) {
             	StringBuilder builder = new StringBuilder();
             	builder.append("user=").append(URLEncoder.encode(username))
             	.append("&api_type=json&passwd=").append(URLEncoder.encode(password));
                  return builder.toString();
 			}
+			
+		});
 
-			@Override
-            protected void onPostExecute(Void ignore) {
-                super.onPostExecute(ignore);
-                if (exception == null) {
-                    callback.onSuccess(this.result);
-                } else {
-                    callback.onFailure(exception);
-                }
-            }
-
-        }.execute((Void) null);
 
 	}
 
